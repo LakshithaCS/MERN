@@ -4,6 +4,9 @@ import Logo from './logo';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
+
+
+/*export registration page*/
 export default function Register() {
   
   const logo = <Logo /> //logo of the page
@@ -18,19 +21,22 @@ export default function Register() {
 }
 
 
+
+/*registration form component*/
 function Form() {
 
-  //states
+  /*initial states*/
    const [data, setData] = useState({
 
     name : "",
     email : "" ,
     password : "",
-    cpassword : ""
-
+    cpassword : "",
    });
+   const [file, setfile] = useState ('');
 
-   //update changes
+
+   //update states for changes
    const handleChange = e => {
             const { name, value } = e.target;
             setData(prevState => ({
@@ -39,23 +45,46 @@ function Form() {
             }));
         };
 
-  //submit - post
+
+  //update file when uploaded
+  const handleFileChange = e => {
+      setfile(e.target.files[0]);
+  }
+
+
+  //when submit button clicked
   const handleSubmit = (evt) => {
-    evt.preventDefault();
-    axios.post('http://localhost:5000/api/auth/register',data)
+
+    const fd = new FormData(); //create an form data object
+    
+    /*append all data*/
+    fd.append('name', data['name']);
+    fd.append('email', data['email']);
+    fd.append('password', data['password']);
+    fd.append('file', file);
+
+    evt.preventDefault(); //keep page without reload
+
+    /*post request*/
+    axios.post('http://localhost:5000/api/auth/register',fd)
   
+    /*if successfull*/
     .then(function (response) {
       console.log(response);
     })
   
+    /**if failed*/
     .catch(function (error) {
-    console.log(error);
+      console.log(error);
     });
+
   }
 
-  return (
 
+  /*registration form*/
+  return (
       <form onSubmit={handleSubmit}>
+
         <div className="text-center">
           <h1>Register</h1>
         </div>
@@ -86,7 +115,7 @@ function Form() {
 
         <label className="custom-file-label" htmlFor="validatedCustomFile">Confirmation Letter</label>
         <div className="mb-3">
-          <input type="file" className="custom-file-input" id="validatedCustomFile" required></input>
+          <input type="file" className="custom-file-input" id="validatedCustomFile" onChange={handleFileChange} required ></input>
           <div className="invalid-feedback">Choose Correct Format</div>
         </div>
  
@@ -95,8 +124,10 @@ function Form() {
         </div>
 
         <div>
+          {/*<Link> tag is similar to <a> tag in HTML, but we have to declare routes in 'index.js' file*/}
           <small>Already have an account? <Link to='/Login'>Login</Link></small>
         </div>
+
       </form>
   );
 }
